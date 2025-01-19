@@ -22,20 +22,16 @@ for file in DATA_PATH.glob("*.xlsx"):
         if f"potassium_sulphate_pH_{i}" in file.name:
             files_for_pH.append(file)
 
-# Sort files based on pH values
 files_for_pH.sort(key=lambda x: int(x.stem.split("potassium_sulphate_pH_")[1]))
 
-# Create a dictionary to store DataFrames for each pH value
 df_dict = {}
 
 for i, file in enumerate(files_for_pH):
     df_dict[pH_list[i]] = pd.read_excel(file, engine="openpyxl")
 
-# Matplotlib settings
 plt.rcParams["font.family"] = "Times New Roman"
 plt.rcParams["mathtext.fontset"] = "stix"
 
-# Plotting data
 fig, ax = plt.subplots()
 
 alpha_values = [0.8, 0.8, 1, 0.8]
@@ -44,11 +40,9 @@ color_values = ['#80CBC4', '#FFDAB9', 'black', '#D8B1D2']
 for i, (key, df) in enumerate(df_dict.items()):
     ax.plot(df.iloc[1:, 0], df.iloc[1:, 1], alpha=alpha_values[i], color=color_values[i])
 
-# Configure plot axes and labels
 ax.set_xlabel("Potential/V vs. Ag/AgCl", fontsize=14)
 ax.set_ylabel("Current/μA", fontsize=14)
 
-# Styling the plot
 ax.spines["bottom"].set_position(("data", 0))
 ax.spines["bottom"].set_color("black")
 ax.spines["bottom"].set_linewidth(0.5)
@@ -59,10 +53,8 @@ ax.axhline(0, color="black", linewidth=0.5, linestyle="--")
 ax.xaxis.set_label_coords(0.5, -0.05)
 ax.tick_params(axis="both", which="major", labelsize=12)
 
-# Add legend
 ax.legend(['pH = 5.97', 'pH = 4.29', 'pH = 3.46', 'pH = 2.03'], fontsize=11)
 
-# Save the plot
 plt.savefig(SAVE_PATH / "CVs_part_B_pH.png", dpi=300, transparent=True)
 plt.close()
 
@@ -113,11 +105,11 @@ def find_red_peak(df, coefs):
     y_extrapolated = x_min * coefs[0] + coefs[1]
     return y_min - y_extrapolated
 
-# Define regions for oxidation and reduction peaks
-x_values_ox = np.array(df.iloc[1:21, 0], dtype=float)
-y_values_ox = np.array(df.iloc[1:21, 1], dtype=float)
-x_values_red = np.array(df.iloc[110:121, 0], dtype=float)
-y_values_red = np.array(df.iloc[110:121, 1], dtype=float)
+## Define regions for oxidation and reduction peaks -> need to redefine df
+# x_values_ox = np.array(df.iloc[1:21, 0], dtype=float)
+# y_values_ox = np.array(df.iloc[1:21, 1], dtype=float)
+# x_values_red = np.array(df.iloc[110:121, 0], dtype=float)
+# y_values_red = np.array(df.iloc[110:121, 1], dtype=float)
 
 # Calculate oxidation and reduction peaks for each pH value
 for key, df in df_dict.items():
@@ -126,5 +118,3 @@ for key, df in df_dict.items():
 
     coefs_red = linear_extrapolation(x_values_red, y_values_red)
     red_peak = find_red_peak(df.iloc[1:, 0:2], coefs_red)
-
-    print(f"pH {key}: Oxidation Peak = {ox_peak:.3f}, Reduction Peak = {red_peak:.3f}")
